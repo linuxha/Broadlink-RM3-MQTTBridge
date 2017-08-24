@@ -4,7 +4,7 @@
 A simple daemon to recieve IR commands from a user and post them to a MQTT topic
 
 ## Version
-Versoin 0.0.1
+Version 0.0.1
 
 ## Usage
 
@@ -26,19 +26,36 @@ Data for sending an IR/RF command (payload for the send command)
 Offset          Meaning
 0x00            0x26 = IR, 0xb2 for RF 433Mhz, 0xd7 for RF 315Mhz
 0x01            repeat count, (0 = no repeat, 1 send twice, .....)
-0x02, 0x03      Length of the following data in little endian
+0x02, 0x03      Length of the following data in little endian (*1)
 0x04 ....       Pulse lengths in 32,84ms units (ms * 269 / 8192 works very well)
 ....            ....
 ....            0x0d 0x05 at the end for IR only
 
+1) Little endian - 0x1234 mem[0] = 0x34, mem[1] = 0x12 (LSB first)
+   Big endian    - 0x1234 mem[0] = 0x12, mem[1] = 0x34 (MSB first)
+   So 3000 is a byte count of 0x30 or 48 bytes
+
 Each value is represented by one byte. If the length exceeds one byte
 then it is stored big endian with a leading 0.
 
+Note to self: 32.84 ms? (xtal 32768Hz?)
 Example: The header for my Optoma projector is 8920 4450
 8920 * 269 / 8192 = 0x124
 4450 * 269 / 8192 = 0x92
 
-So the data starts with 0x00 0x1 0x24 0x92 ....
+So the data starts with 0x00 0x01 0x24 0x92 ....
+
+### Eample (Key 2 on my Streamzap IR remote - factory programming?)
+26 00 1a00 1d1b1d1a1d1a391a1d1b1d361d1a391a1d1b1c1b1d36 3800 0d05 0000000000000000000000000000
+
+Bytes           Meaning
+26              IR
+00              No repeat
+1a00            26 bytes
+1d ...          data
+3800            ???
+0d05            End of signal
+00 ...          Null padding (why ???)
 
 If you use LIRC as a template then you have just to continue with
 pre-data and then command, where you would use the "zero" pulse
