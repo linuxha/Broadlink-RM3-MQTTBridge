@@ -3,6 +3,12 @@
 import binascii
 import struct
 
+# Pronto (ex)
+# 0000 006E 0022 0002 0156 00AB 0015 003F 0015 0015 0015 003F 0015 0015 0015 0015 0015 0015 0015
+# 0015 0015 003F 0015 0015 0015 0015 0015 0015 0015 0015 0015 003F 0015 003F 0015 0015 0015 0015
+# 0015 0015 0015 0015 0015 0015 0015 0015 0015 003F 0015 003F 0015 0015 0015 0015 0015 0015 0015
+# 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003F 0015 003F 0015 0719 0156 0055 0015 0E2A
+# 4 * 19 = 76
 def pronto2lirc(pronto):
     codes = [long(binascii.hexlify(pronto[i:i+2]), 16) for i in xrange(0, len(pronto), 2)]
 
@@ -14,6 +20,13 @@ def pronto2lirc(pronto):
     frequency = 1 / (codes[1] * 0.241246)
     return [int(round(code / frequency)) for code in codes[4:]]
 
+# LIRC
+# [9076, 4538, 557, 1672, 557, 557, 557, 1672, 557, 557, 557, 557, 557, 557, 557, 557, 557,
+# 1672, 557, 557, 557, 557, 557, 557, 557, 557, 557, 1672, 557, 1672, 557, 557, 557, 557,
+# 557, 557, 557, 557, 557, 557, 557, 557, 557, 1672, 557, 1672, 557, 557, 557, 557, 557,
+# 557, 557, 557, 557, 557, 557, 557, 557, 557, 557, 557, 557, 1672, 557, 1672, 557, 48218,
+# 9076, 2256, 557, 96223]
+# 72
 def lirc2broadlink(pulses):
     array = bytearray()
 
@@ -37,16 +50,25 @@ def lirc2broadlink(pulses):
         packet += bytearray(16 - remainder)
 
     return packet
-
+#
+# Packet:
+# 50 00 = 0x0050 = 80 = (80 - 4)/2 = 39 (78 bytes)
+# 2600500000012a9512361212123612121212121212121236121212121212121212361236
+# 121212121212121212121212123612361212121212121212121212121212121212361236
+# 1200062f00012a4a12000c570d05000000000000
+# 00012a95123612121236121212121212121212361212121212121212123612361212121212121212121212121236123612121212121212121212121212121212123612361200062f00012a4a1200 0c57
 if __name__ == '__main__':
     import sys
 
     for code in sys.argv[1:]:
-        pronto = bytearray.fromhex(code)
-        pulses = pronto2lirc(pronto)
-        packet = lirc2broadlink(pulses)
-
-        print
+        print "Code:"
+        print code
+        pulses = pronto2lirc(bytearray.fromhex(code))
+        print "Pulses:"
+        print pulses
+        print len(pulses)
+        packet = lirc2broadlink(pulses) # Binary format
+        print "Broadlink:"
         print binascii.hexlify(packet)
     #
 #
