@@ -19,7 +19,9 @@ hit twice (once, pause, twice) returns 2 different strings. I'll need
 to figure out how to interpret the data in a consistent manner.
 
 ## Notes:
-https://github.com/mjg59/python-broadlink/issues/57
+* [Additional info for generating data for IR/RF from LIRC DB etc.](https://github.com/mjg59/python-broadlink/issues/57)
+* [My Broadlink-RM3-MQTTBridge web page](https://ushomeautomation.com/Projects/Broadlink-RM3-MQTTBridge/)
+
 From the previous URL
 Data for sending an IR/RF command (payload for the send command)
 
